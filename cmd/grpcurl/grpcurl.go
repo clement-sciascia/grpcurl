@@ -131,6 +131,8 @@ var (
 		will accept. If not specified, defaults to 4,194,304 (4 megabytes).`))
 	emitDefaults = flags.Bool("emit-defaults", false, prettify(`
 		Emit default values for JSON-encoded responses.`))
+	keepProtoNames = flags.Bool("keep-proto-names", false, prettify(`
+		Use the original protobuf name for fields, instead of lowerCamelCase`))
 	protosetOut = flags.String("protoset-out", "", prettify(`
 		The name of a file to be written that will contain a FileDescriptorSet
 		proto. With the list and describe verbs, the listed or described
@@ -297,6 +299,9 @@ func main() {
 		fail(nil, "The -format option must be 'json' or 'text'.")
 	}
 	if *emitDefaults && *format != "json" {
+		warn("The -emit-defaults is only used when using json format.")
+	}
+	if *keepProtoNames && *format != "json" {
 		warn("The -emit-defaults is only used when using json format.")
 	}
 
@@ -691,6 +696,7 @@ func main() {
 		includeSeparators := verbosityLevel == 0
 		options := grpcurl.FormatOptions{
 			EmitJSONDefaultFields: *emitDefaults,
+			OrigName:              *keepProtoNames,
 			IncludeTextSeparator:  includeSeparators,
 			AllowUnknownFields:    *allowUnknownFields,
 		}
